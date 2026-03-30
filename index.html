@@ -27,15 +27,7 @@
       border: none;
       cursor: pointer;
       margin: 5px;
-    }
-
-    .add {
       background: green;
-      color: white;
-    }
-
-    .delete {
-      background: red;
       color: white;
     }
 
@@ -43,7 +35,7 @@
       margin: auto;
       margin-top: 20px;
       border-collapse: collapse;
-      width: 70%;
+      width: 90%;
       background: white;
     }
 
@@ -61,6 +53,12 @@
       width: 300px;
       margin-top: 10px;
     }
+
+    a {
+      color: green;
+      text-decoration: none;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -68,8 +66,9 @@
 <h1>📞 Agenda Telefônica</h1>
 
 <input type="text" id="nome" placeholder="Nome">
-<input type="text" id="telefone" placeholder="Telefone">
-<button class="add" onclick="adicionarContato()">Adicionar</button>
+<input type="text" id="telefone" placeholder="DDD + Número">
+<input type="text" id="obs" placeholder="Observações">
+<button onclick="adicionarContato()">Adicionar</button>
 
 <br>
 
@@ -80,7 +79,8 @@
     <tr>
       <th>Nome</th>
       <th>Telefone</th>
-      <th>Ações</th>
+      <th>Observações</th>
+      <th>WhatsApp</th>
     </tr>
   </thead>
   <tbody id="lista"></tbody>
@@ -93,45 +93,60 @@
     localStorage.setItem("contatos", JSON.stringify(contatos));
   }
 
+  function formatarTelefone(numero) {
+    numero = numero.replace(/\D/g, '');
+
+    if (numero.length === 11) {
+      return numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (numero.length === 10) {
+      return numero.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return numero;
+  }
+
+  function gerarWhatsApp(numero) {
+    numero = numero.replace(/\D/g, '');
+    return `https://wa.me/55${numero}`;
+  }
+
   function renderizar(lista = contatos) {
     let tabela = document.getElementById("lista");
     tabela.innerHTML = "";
 
-    lista.forEach((contato, index) => {
+    lista.forEach((contato) => {
       let linha = tabela.insertRow();
 
       linha.insertCell(0).innerText = contato.nome;
-      linha.insertCell(1).innerText = contato.telefone;
+      linha.insertCell(1).innerText = formatarTelefone(contato.telefone);
+      linha.insertCell(2).innerText = contato.obs;
 
-      let btn = document.createElement("button");
-      btn.innerText = "Excluir";
-      btn.className = "delete";
-      btn.onclick = () => {
-        contatos.splice(index, 1);
-        salvar();
-        renderizar();
-      };
+      let link = document.createElement("a");
+      link.href = gerarWhatsApp(contato.telefone);
+      link.target = "_blank";
+      link.innerText = "Abrir";
 
-      let cell = linha.insertCell(2);
-      cell.appendChild(btn);
+      let cell = linha.insertCell(3);
+      cell.appendChild(link);
     });
   }
 
   function adicionarContato() {
     let nome = document.getElementById("nome").value;
     let telefone = document.getElementById("telefone").value;
+    let obs = document.getElementById("obs").value;
 
     if (nome === "" || telefone === "") {
-      alert("Preencha todos os campos!");
+      alert("Preencha nome e telefone!");
       return;
     }
 
-    contatos.push({ nome, telefone });
+    contatos.push({ nome, telefone, obs });
     salvar();
     renderizar();
 
     document.getElementById("nome").value = "";
     document.getElementById("telefone").value = "";
+    document.getElementById("obs").value = "";
   }
 
   function filtrar() {
