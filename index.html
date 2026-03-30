@@ -61,8 +61,28 @@ header {
   color: #555;
 }
 
+.user {
+  font-size: 11px;
+  color: #888;
+}
+
+.acoes {
+  display: flex;
+  gap: 5px;
+}
+
 .whats {
   background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+}
+
+.delete {
+  background: red;
   color: white;
   border: none;
   border-radius: 50%;
@@ -98,7 +118,7 @@ header {
 .modal-content {
   background: white;
   padding: 20px;
-  margin: 100px auto;
+  margin: 80px auto;
   width: 90%;
   border-radius: 10px;
 }
@@ -115,7 +135,7 @@ header {
 
 <header>📱 Agenda</header>
 
-<input type="text" id="busca" placeholder="🔍 Buscar por nome, telefone ou observações..." onkeyup="filtrar()">
+<input type="text" id="busca" placeholder="🔍 Buscar..." onkeyup="filtrar()">
 
 <div class="lista" id="lista"></div>
 
@@ -127,6 +147,7 @@ header {
     <input type="text" id="nome" placeholder="Nome">
     <input type="text" id="telefone" placeholder="DDD + Número">
     <input type="text" id="obs" placeholder="Observações">
+    <input type="text" id="usuario" placeholder="Quem cadastrou">
     <button onclick="adicionar()">Salvar</button>
   </div>
 </div>
@@ -157,7 +178,7 @@ function render(lista = contatos) {
   let div = document.getElementById("lista");
   div.innerHTML = "";
 
-  lista.forEach(c => {
+  lista.forEach((c, index) => {
     let item = document.createElement("div");
     item.className = "contato";
 
@@ -166,8 +187,12 @@ function render(lista = contatos) {
         <div class="nome">${c.nome}</div>
         <div class="tel">${formatar(c.telefone)}</div>
         <div class="obs">${c.obs || ""}</div>
+        <div class="user">👤 ${c.usuario || "Não informado"}</div>
       </div>
-      <button class="whats" onclick="window.open('${whatsapp(c.telefone)}')">💬</button>
+      <div class="acoes">
+        <button class="whats" onclick="window.open('${whatsapp(c.telefone)}')">💬</button>
+        <button class="delete" onclick="excluir(${index})">🗑️</button>
+      </div>
     `;
 
     div.appendChild(item);
@@ -178,13 +203,14 @@ function adicionar() {
   let nome = document.getElementById("nome").value;
   let telefone = document.getElementById("telefone").value;
   let obs = document.getElementById("obs").value;
+  let usuario = document.getElementById("usuario").value;
 
   if (!nome || !telefone) {
     alert("Preencha nome e telefone!");
     return;
   }
 
-  contatos.push({ nome, telefone, obs });
+  contatos.push({ nome, telefone, obs, usuario });
   salvar();
   render();
   fecharModal();
@@ -192,6 +218,15 @@ function adicionar() {
   document.getElementById("nome").value = "";
   document.getElementById("telefone").value = "";
   document.getElementById("obs").value = "";
+  document.getElementById("usuario").value = "";
+}
+
+function excluir(index) {
+  if (confirm("Deseja excluir este contato?")) {
+    contatos.splice(index, 1);
+    salvar();
+    render();
+  }
 }
 
 function filtrar() {
@@ -200,6 +235,7 @@ function filtrar() {
   let filtrados = contatos.filter(c =>
     c.nome.toLowerCase().includes(busca) ||
     (c.obs && c.obs.toLowerCase().includes(busca)) ||
+    (c.usuario && c.usuario.toLowerCase().includes(busca)) ||
     c.telefone.includes(busca)
   );
 
