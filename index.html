@@ -1,165 +1,218 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Agenda Telefônica</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f4f4;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda App</title>
 
-    h1 {
-      background: #2c3e50;
-      color: white;
-      padding: 15px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #ece5dd;
+}
 
-    input {
-      padding: 10px;
-      margin: 5px;
-      width: 180px;
-    }
+/* TOPO */
+header {
+  background: #075e54;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 20px;
+}
 
-    button {
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      margin: 5px;
-      background: green;
-      color: white;
-    }
+/* BUSCA */
+#busca {
+  width: 90%;
+  margin: 10px auto;
+  display: block;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+}
 
-    table {
-      margin: auto;
-      margin-top: 20px;
-      border-collapse: collapse;
-      width: 90%;
-      background: white;
-    }
+/* LISTA */
+.lista {
+  padding: 10px;
+}
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-    }
+.contato {
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    th {
-      background: #34495e;
-      color: white;
-    }
+.info {
+  text-align: left;
+}
 
-    #busca {
-      width: 300px;
-      margin-top: 10px;
-    }
+.nome {
+  font-weight: bold;
+}
 
-    a {
-      color: green;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+.tel {
+  color: gray;
+  font-size: 14px;
+}
+
+.obs {
+  font-size: 12px;
+  color: #555;
+}
+
+/* BOTÃO WHATS */
+.whats {
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+}
+
+/* BOTÃO FLUTUANTE */
+.add-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  margin: 100px auto;
+  width: 90%;
+  border-radius: 10px;
+}
+
+.modal input {
+  width: 95%;
+  padding: 10px;
+  margin: 5px 0;
+}
+</style>
 </head>
+
 <body>
 
-<h1>📞 Agenda Telefônica</h1>
+<header>📱 Agenda</header>
 
-<input type="text" id="nome" placeholder="Nome">
-<input type="text" id="telefone" placeholder="DDD + Número">
-<input type="text" id="obs" placeholder="Observações">
-<button onclick="adicionarContato()">Adicionar</button>
+<input type="text" id="busca" placeholder="🔍 Buscar..." onkeyup="filtrar()">
 
-<br>
+<div class="lista" id="lista"></div>
 
-<input type="text" id="busca" placeholder="🔍 Buscar contato..." onkeyup="filtrar()">
+<button class="add-btn" onclick="abrirModal()">+</button>
 
-<table>
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Telefone</th>
-      <th>Observações</th>
-      <th>WhatsApp</th>
-    </tr>
-  </thead>
-  <tbody id="lista"></tbody>
-</table>
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Novo Contato</h3>
+    <input type="text" id="nome" placeholder="Nome">
+    <input type="text" id="telefone" placeholder="DDD + Número">
+    <input type="text" id="obs" placeholder="Observações">
+    <button onclick="adicionar()">Salvar</button>
+  </div>
+</div>
 
 <script>
-  let contatos = JSON.parse(localStorage.getItem("contatos")) || [];
+let contatos = JSON.parse(localStorage.getItem("contatos")) || [];
 
-  function salvar() {
-    localStorage.setItem("contatos", JSON.stringify(contatos));
+function salvar() {
+  localStorage.setItem("contatos", JSON.stringify(contatos));
+}
+
+function formatar(numero) {
+  numero = numero.replace(/\D/g, '');
+  if (numero.length === 11) {
+    return numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  }
+  return numero;
+}
+
+function whatsapp(numero) {
+  numero = numero.replace(/\D/g, '');
+  return `https://wa.me/55${numero}`;
+}
+
+function render(lista = contatos) {
+  let div = document.getElementById("lista");
+  div.innerHTML = "";
+
+  lista.forEach(c => {
+    let item = document.createElement("div");
+    item.className = "contato";
+
+    item.innerHTML = `
+      <div class="info">
+        <div class="nome">${c.nome}</div>
+        <div class="tel">${formatar(c.telefone)}</div>
+        <div class="obs">${c.obs || ""}</div>
+      </div>
+      <button class="whats" onclick="window.open('${whatsapp(c.telefone)}')">💬</button>
+    `;
+
+    div.appendChild(item);
+  });
+}
+
+function adicionar() {
+  let nome = document.getElementById("nome").value;
+  let telefone = document.getElementById("telefone").value;
+  let obs = document.getElementById("obs").value;
+
+  if (!nome || !telefone) {
+    alert("Preencha nome e telefone!");
+    return;
   }
 
-  function formatarTelefone(numero) {
-    numero = numero.replace(/\D/g, '');
+  contatos.push({ nome, telefone, obs });
+  salvar();
+  render();
+  fecharModal();
 
-    if (numero.length === 11) {
-      return numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    } else if (numero.length === 10) {
-      return numero.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-    }
-    return numero;
-  }
+  document.getElementById("nome").value = "";
+  document.getElementById("telefone").value = "";
+  document.getElementById("obs").value = "";
+}
 
-  function gerarWhatsApp(numero) {
-    numero = numero.replace(/\D/g, '');
-    return `https://wa.me/55${numero}`;
-  }
+function filtrar() {
+  let busca = document.getElementById("busca").value.toLowerCase();
+  let filtrados = contatos.filter(c => c.nome.toLowerCase().includes(busca));
+  render(filtrados);
+}
 
-  function renderizar(lista = contatos) {
-    let tabela = document.getElementById("lista");
-    tabela.innerHTML = "";
+function abrirModal() {
+  document.getElementById("modal").style.display = "block";
+}
 
-    lista.forEach((contato) => {
-      let linha = tabela.insertRow();
+function fecharModal() {
+  document.getElementById("modal").style.display = "none";
+}
 
-      linha.insertCell(0).innerText = contato.nome;
-      linha.insertCell(1).innerText = formatarTelefone(contato.telefone);
-      linha.insertCell(2).innerText = contato.obs;
-
-      let link = document.createElement("a");
-      link.href = gerarWhatsApp(contato.telefone);
-      link.target = "_blank";
-      link.innerText = "Abrir";
-
-      let cell = linha.insertCell(3);
-      cell.appendChild(link);
-    });
-  }
-
-  function adicionarContato() {
-    let nome = document.getElementById("nome").value;
-    let telefone = document.getElementById("telefone").value;
-    let obs = document.getElementById("obs").value;
-
-    if (nome === "" || telefone === "") {
-      alert("Preencha nome e telefone!");
-      return;
-    }
-
-    contatos.push({ nome, telefone, obs });
-    salvar();
-    renderizar();
-
-    document.getElementById("nome").value = "";
-    document.getElementById("telefone").value = "";
-    document.getElementById("obs").value = "";
-  }
-
-  function filtrar() {
-    let busca = document.getElementById("busca").value.toLowerCase();
-
-    let filtrados = contatos.filter(c =>
-      c.nome.toLowerCase().includes(busca)
-    );
-
-    renderizar(filtrados);
-  }
-
-  renderizar();
+render();
 </script>
 
 </body>
