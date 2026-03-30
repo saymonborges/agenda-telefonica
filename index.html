@@ -178,10 +178,9 @@ function render(lista = contatos) {
   });
 }
 
-function adicionar() {
-  let nome = document.getElementById("nome").value;
-  let telefone = document.getElementById("telefone").value;
-  let obs = document.getElementById("obs").value;
+c.nome.toLowerCase().includes(busca) ||
+(c.obs && c.obs.toLowerCase().includes(busca)) ||
+c.telefone.includes(busca)
 
   if (!nome || !telefone) {
     alert("Preencha nome e telefone!");
