@@ -20,6 +20,13 @@ header {
   font-size: 20px;
 }
 
+.usuario-logado {
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+  margin-top: 5px;
+}
+
 #busca {
   width: 90%;
   margin: 10px auto;
@@ -47,32 +54,17 @@ header {
   text-align: left;
 }
 
-.nome {
-  font-weight: bold;
-}
-
-.tel {
-  color: gray;
-  font-size: 14px;
-}
-
-.obs {
-  font-size: 12px;
-  color: #555;
-}
-
-.user {
-  font-size: 11px;
-  color: #888;
-}
+.nome { font-weight: bold; }
+.tel { color: gray; font-size: 14px; }
+.obs { font-size: 12px; color: #555; }
+.user { font-size: 11px; color: #888; }
 
 .acoes {
   display: flex;
   gap: 5px;
 }
 
-.whats {
-  background: #25d366;
+.whats, .delete {
   color: white;
   border: none;
   border-radius: 50%;
@@ -81,15 +73,8 @@ header {
   cursor: pointer;
 }
 
-.delete {
-  background: red;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-}
+.whats { background: #25d366; }
+.delete { background: red; }
 
 .add-btn {
   position: fixed;
@@ -118,7 +103,7 @@ header {
 .modal-content {
   background: white;
   padding: 20px;
-  margin: 80px auto;
+  margin: 100px auto;
   width: 90%;
   border-radius: 10px;
 }
@@ -134,6 +119,7 @@ header {
 <body>
 
 <header>📱 Agenda</header>
+<div class="usuario-logado" id="usuarioLogado"></div>
 
 <input type="text" id="busca" placeholder="🔍 Buscar..." onkeyup="filtrar()">
 
@@ -147,13 +133,22 @@ header {
     <input type="text" id="nome" placeholder="Nome">
     <input type="text" id="telefone" placeholder="DDD + Número">
     <input type="text" id="obs" placeholder="Observações">
-    <input type="text" id="usuario" placeholder="Quem cadastrou">
     <button onclick="adicionar()">Salvar</button>
   </div>
 </div>
 
 <script>
 let contatos = JSON.parse(localStorage.getItem("contatos")) || [];
+
+/* LOGIN AUTOMÁTICO */
+let usuario = localStorage.getItem("usuario");
+
+if (!usuario) {
+  usuario = prompt("Digite seu nome para usar a agenda:");
+  localStorage.setItem("usuario", usuario);
+}
+
+document.getElementById("usuarioLogado").innerText = "Logado como: " + usuario;
 
 function salvar() {
   localStorage.setItem("contatos", JSON.stringify(contatos));
@@ -187,7 +182,7 @@ function render(lista = contatos) {
         <div class="nome">${c.nome}</div>
         <div class="tel">${formatar(c.telefone)}</div>
         <div class="obs">${c.obs || ""}</div>
-        <div class="user">👤 ${c.usuario || "Não informado"}</div>
+        <div class="user">👤 ${c.usuario}</div>
       </div>
       <div class="acoes">
         <button class="whats" onclick="window.open('${whatsapp(c.telefone)}')">💬</button>
@@ -203,7 +198,6 @@ function adicionar() {
   let nome = document.getElementById("nome").value;
   let telefone = document.getElementById("telefone").value;
   let obs = document.getElementById("obs").value;
-  let usuario = document.getElementById("usuario").value;
 
   if (!nome || !telefone) {
     alert("Preencha nome e telefone!");
@@ -218,7 +212,6 @@ function adicionar() {
   document.getElementById("nome").value = "";
   document.getElementById("telefone").value = "";
   document.getElementById("obs").value = "";
-  document.getElementById("usuario").value = "";
 }
 
 function excluir(index) {
