@@ -9,37 +9,57 @@
       background: #f4f4f4;
       text-align: center;
     }
+
     h1 {
-      background: #333;
+      background: #2c3e50;
       color: white;
-      padding: 10px;
+      padding: 15px;
     }
+
     input {
       padding: 10px;
       margin: 5px;
-      width: 200px;
+      width: 180px;
     }
+
     button {
       padding: 10px;
-      background: green;
-      color: white;
       border: none;
       cursor: pointer;
+      margin: 5px;
     }
+
+    .add {
+      background: green;
+      color: white;
+    }
+
+    .delete {
+      background: red;
+      color: white;
+    }
+
     table {
       margin: auto;
       margin-top: 20px;
       border-collapse: collapse;
-      width: 60%;
+      width: 70%;
       background: white;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 10px;
     }
+
     th {
-      background: #555;
+      background: #34495e;
       color: white;
+    }
+
+    #busca {
+      width: 300px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -49,37 +69,82 @@
 
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
-<button onclick="adicionarContato()">Adicionar</button>
+<button class="add" onclick="adicionarContato()">Adicionar</button>
+
+<br>
+
+<input type="text" id="busca" placeholder="🔍 Buscar contato..." onkeyup="filtrar()">
 
 <table>
   <thead>
     <tr>
       <th>Nome</th>
       <th>Telefone</th>
+      <th>Ações</th>
     </tr>
   </thead>
   <tbody id="lista"></tbody>
 </table>
 
 <script>
+  let contatos = JSON.parse(localStorage.getItem("contatos")) || [];
+
+  function salvar() {
+    localStorage.setItem("contatos", JSON.stringify(contatos));
+  }
+
+  function renderizar(lista = contatos) {
+    let tabela = document.getElementById("lista");
+    tabela.innerHTML = "";
+
+    lista.forEach((contato, index) => {
+      let linha = tabela.insertRow();
+
+      linha.insertCell(0).innerText = contato.nome;
+      linha.insertCell(1).innerText = contato.telefone;
+
+      let btn = document.createElement("button");
+      btn.innerText = "Excluir";
+      btn.className = "delete";
+      btn.onclick = () => {
+        contatos.splice(index, 1);
+        salvar();
+        renderizar();
+      };
+
+      let cell = linha.insertCell(2);
+      cell.appendChild(btn);
+    });
+  }
+
   function adicionarContato() {
     let nome = document.getElementById("nome").value;
     let telefone = document.getElementById("telefone").value;
 
-    if(nome === "" || telefone === "") {
+    if (nome === "" || telefone === "") {
       alert("Preencha todos os campos!");
       return;
     }
 
-    let tabela = document.getElementById("lista");
-    let linha = tabela.insertRow();
-
-    linha.insertCell(0).innerText = nome;
-    linha.insertCell(1).innerText = telefone;
+    contatos.push({ nome, telefone });
+    salvar();
+    renderizar();
 
     document.getElementById("nome").value = "";
     document.getElementById("telefone").value = "";
   }
+
+  function filtrar() {
+    let busca = document.getElementById("busca").value.toLowerCase();
+
+    let filtrados = contatos.filter(c =>
+      c.nome.toLowerCase().includes(busca)
+    );
+
+    renderizar(filtrados);
+  }
+
+  renderizar();
 </script>
 
 </body>
