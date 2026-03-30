@@ -3,123 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda App</title>
+<title>Agenda Online</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #ece5dd;
-}
+body { margin:0; font-family: Arial; background:#ece5dd; }
+header { background:#075e54; color:white; padding:15px; text-align:center; }
+#busca { width:90%; margin:10px auto; display:block; padding:10px; border-radius:20px; border:none; }
 
-header {
-  background: #075e54;
-  color: white;
-  padding: 15px;
-  text-align: center;
-  font-size: 20px;
-}
-
-.usuario-logado {
-  text-align: center;
-  font-size: 12px;
-  color: #333;
-  margin-top: 5px;
-}
-
-#busca {
-  width: 90%;
-  margin: 10px auto;
-  display: block;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-}
-
-.lista {
-  padding: 10px;
-}
+.lista { padding:10px; }
 
 .contato {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background:white;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.info {
-  text-align: left;
-}
+.info { text-align:left; }
+.nome { font-weight:bold; }
+.tel { color:gray; font-size:14px; }
+.obs { font-size:12px; color:#555; }
+.user { font-size:11px; color:#888; }
 
-.nome { font-weight: bold; }
-.tel { color: gray; font-size: 14px; }
-.obs { font-size: 12px; color: #555; }
-.user { font-size: 11px; color: #888; }
-
-.acoes {
-  display: flex;
-  gap: 5px;
-}
+.acoes { display:flex; gap:5px; }
 
 .whats, .delete {
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
+  border:none;
+  border-radius:50%;
+  width:45px;
+  height:45px;
+  color:white;
+  cursor:pointer;
 }
 
-.whats { background: #25d366; }
-.delete { background: red; }
+.whats { background:#25d366; }
+.delete { background:red; }
 
 .add-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #25d366;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 30px;
-  cursor: pointer;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#25d366;
+  color:white;
+  border:none;
+  border-radius:50%;
+  width:60px;
+  height:60px;
+  font-size:30px;
 }
 
 .modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  margin: 100px auto;
-  width: 90%;
-  border-radius: 10px;
+  background:white;
+  margin:100px auto;
+  padding:20px;
+  width:90%;
+  border-radius:10px;
 }
 
 .modal input {
-  width: 95%;
-  padding: 10px;
-  margin: 5px 0;
+  width:95%;
+  padding:10px;
+  margin:5px 0;
 }
 </style>
 </head>
 
 <body>
 
-<header>📱 Agenda</header>
-<div class="usuario-logado" id="usuarioLogado"></div>
+<header>📱 Agenda Online</header>
 
 <input type="text" id="busca" placeholder="🔍 Buscar..." onkeyup="filtrar()">
 
@@ -137,29 +99,36 @@ header {
   </div>
 </div>
 
-<script>
-let contatos = JSON.parse(localStorage.getItem("contatos")) || [];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* LOGIN AUTOMÁTICO */
+/* 🔥 SUA CONFIG (JÁ INSERIDA) */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJXuCDxGHfly39U-w2meAbJclQ3S_VQlo",
+  authDomain: "telefone-uteis-cbm-sls.firebaseapp.com",
+  projectId: "telefone-uteis-cbm-sls",
+  storageBucket: "telefone-uteis-cbm-sls.firebasestorage.app",
+  messagingSenderId: "21287256802",
+  appId: "1:21287256802:web:84e1e1e788e7d1cc9c54bb"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* LOGIN SIMPLES */
 let usuario = localStorage.getItem("usuario");
-
 if (!usuario) {
-  usuario = prompt("Digite seu nome para usar a agenda:");
+  usuario = prompt("Digite seu nome:");
   localStorage.setItem("usuario", usuario);
 }
 
-document.getElementById("usuarioLogado").innerText = "Logado como: " + usuario;
-
-function salvar() {
-  localStorage.setItem("contatos", JSON.stringify(contatos));
-}
-
+/* FORMATAR TELEFONE */
 function formatar(numero) {
   numero = numero.replace(/\D/g, '');
   if (numero.length === 11) {
     return numero.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-  } else if (numero.length === 10) {
-    return numero.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
   }
   return numero;
 }
@@ -169,11 +138,48 @@ function whatsapp(numero) {
   return `https://wa.me/55${numero}`;
 }
 
-function render(lista = contatos) {
+/* ADICIONAR */
+async function adicionar() {
+  let nome = document.getElementById("nome").value;
+  let telefone = document.getElementById("telefone").value;
+  let obs = document.getElementById("obs").value;
+
+  if (!nome || !telefone) {
+    alert("Preencha nome e telefone!");
+    return;
+  }
+
+  await addDoc(collection(db, "contatos"), {
+    nome, telefone, obs, usuario
+  });
+
+  fecharModal();
+}
+
+/* LISTAR EM TEMPO REAL */
+let contatosCache = [];
+
+onSnapshot(collection(db, "contatos"), (snapshot) => {
+  contatosCache = [];
+  snapshot.forEach(docSnap => {
+    contatosCache.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  render(contatosCache);
+});
+
+/* EXCLUIR */
+async function excluir(id) {
+  if (confirm("Excluir contato?")) {
+    await deleteDoc(doc(db, "contatos", id));
+  }
+}
+
+/* RENDER */
+function render(lista) {
   let div = document.getElementById("lista");
   div.innerHTML = "";
 
-  lista.forEach((c, index) => {
+  lista.forEach(c => {
     let item = document.createElement("div");
     item.className = "contato";
 
@@ -186,7 +192,7 @@ function render(lista = contatos) {
       </div>
       <div class="acoes">
         <button class="whats" onclick="window.open('${whatsapp(c.telefone)}')">💬</button>
-        <button class="delete" onclick="excluir(${index})">🗑️</button>
+        <button class="delete" onclick="window.excluir('${c.id}')">🗑️</button>
       </div>
     `;
 
@@ -194,38 +200,11 @@ function render(lista = contatos) {
   });
 }
 
-function adicionar() {
-  let nome = document.getElementById("nome").value;
-  let telefone = document.getElementById("telefone").value;
-  let obs = document.getElementById("obs").value;
-
-  if (!nome || !telefone) {
-    alert("Preencha nome e telefone!");
-    return;
-  }
-
-  contatos.push({ nome, telefone, obs, usuario });
-  salvar();
-  render();
-  fecharModal();
-
-  document.getElementById("nome").value = "";
-  document.getElementById("telefone").value = "";
-  document.getElementById("obs").value = "";
-}
-
-function excluir(index) {
-  if (confirm("Deseja excluir este contato?")) {
-    contatos.splice(index, 1);
-    salvar();
-    render();
-  }
-}
-
+/* BUSCA */
 function filtrar() {
   let busca = document.getElementById("busca").value.toLowerCase();
 
-  let filtrados = contatos.filter(c =>
+  let filtrados = contatosCache.filter(c =>
     c.nome.toLowerCase().includes(busca) ||
     (c.obs && c.obs.toLowerCase().includes(busca)) ||
     (c.usuario && c.usuario.toLowerCase().includes(busca)) ||
@@ -235,6 +214,8 @@ function filtrar() {
   render(filtrados);
 }
 
+window.excluir = excluir;
+
 function abrirModal() {
   document.getElementById("modal").style.display = "block";
 }
@@ -242,8 +223,6 @@ function abrirModal() {
 function fecharModal() {
   document.getElementById("modal").style.display = "none";
 }
-
-render();
 </script>
 
 </body>
