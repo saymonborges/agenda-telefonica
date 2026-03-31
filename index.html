@@ -1,221 +1,463 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda Online</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda Telefônica</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-<style>
-body { margin:0; font-family: Arial; background:#ece5dd; }
+    body {
+      margin: 0;
+      background: #eef2f7;
+      color: #222;
+    }
 
-header {
-  background:#075e54;
-  color:white;
-  padding:15px;
-  text-align:center;
-  font-size:20px;
-}
+    .container {
+      max-width: 950px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
 
-#busca {
-  width:90%;
-  margin:10px auto;
-  padding:10px;
-  border-radius:20px;
-  border:none;
-  display:block;
-}
+    h1 {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #0f4c81;
+    }
 
-.lista { padding:10px; }
+    h2 {
+      margin-top: 0;
+      color: #0f4c81;
+      font-size: 18px;
+    }
 
-.contato {
-  background:white;
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:10px;
-  display:flex;
-  justify-content:space-between;
-}
+    .card {
+      background: #f8fbff;
+      border: 1px solid #d9e7f5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
 
-.nome { font-weight:bold; }
-.tel { color:gray; font-size:14px; }
-.obs { font-size:12px; }
-.user { font-size:11px; color:#777; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
 
-button {
-  border:none;
-  border-radius:50%;
-  width:40px;
-  height:40px;
-  color:white;
-  cursor:pointer;
-}
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
 
-.whats { background:#25d366; }
-.delete { background:red; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #c8d3df;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
 
-.add-btn {
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#25d366;
-  color:white;
-  font-size:30px;
-}
+    input:focus {
+      border-color: #0f4c81;
+    }
 
-.modal {
-  display:none;
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-}
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
 
-.modal-content {
-  background:white;
-  margin:100px auto;
-  padding:20px;
-  width:90%;
-  border-radius:10px;
-}
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: 0.2s;
+    }
 
-.modal input {
-  width:95%;
-  padding:10px;
-  margin:5px 0;
-}
-</style>
+    .btn-primary {
+      background: #0f4c81;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0b3b64;
+    }
+
+    .btn-success {
+      background: #198754;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #12663f;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b52b38;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #565e64;
+    }
+
+    .status {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.ok {
+      background: #e8f7ed;
+      color: #166534;
+      border: 1px solid #b9e4c7;
+    }
+
+    .status.error {
+      background: #fdecec;
+      color: #991b1b;
+      border: 1px solid #f5bcbc;
+    }
+
+    .top-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .top-bar input {
+      max-width: 320px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    thead {
+      background: #f3f7fb;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e8edf3;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #334155;
+    }
+
+    .empty {
+      text-align: center;
+      color: #64748b;
+      padding: 24px 8px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    code {
+      background: #edf2f7;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <h1>📞 Agenda Telefônica</h1>
 
-<header>📱 Agenda Online</header>
+    <div id="status" class="status"></div>
 
-<input id="busca" placeholder="🔍 Buscar..." onkeyup="filtrar()">
+    <div class="card">
+      <h2>Configuração JsonBin</h2>
 
-<div id="lista" class="lista"></div>
-
-<button class="add-btn" onclick="abrirModal()">+</button>
-
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>Novo Contato</h3>
-    <input id="nome" placeholder="Nome">
-    <input id="telefone" placeholder="DDD + Número">
-    <input id="obs" placeholder="Observações">
-    <button onclick="adicionar()">Salvar</button>
-  </div>
-</div>
-
-<script>
-const API_KEY = "SUA_API_KEY_AQUI";
-const BIN_ID = "69cb0541856a682189e3aded";
-
-let contatos = [];
-
-let usuario = localStorage.getItem("usuario") || prompt("Digite seu nome:");
-localStorage.setItem("usuario", usuario);
-
-/* CARREGAR */
-async function carregar() {
-  let res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-    headers: { "X-Master-Key": API_KEY }
-  });
-
-  let data = await res.json();
-  contatos = data.record.contatos || [];
-  render(contatos);
-}
-
-/* SALVAR */
-async function salvar() {
-  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Master-Key": API_KEY
-    },
-    body: JSON.stringify({ contatos })
-  });
-}
-
-/* RENDER */
-function render(lista) {
-  let div = document.getElementById("lista");
-  div.innerHTML = "";
-
-  lista.forEach((c, i) => {
-    div.innerHTML += `
-      <div class="contato">
+      <div class="grid">
         <div>
-          <div class="nome">${c.nome}</div>
-          <div class="tel">${c.telefone}</div>
-          <div class="obs">${c.obs || ""}</div>
-          <div class="user">👤 ${c.usuario}</div>
+          <label for="binId">BIN ID</label>
+          <input id="binId" type="text" placeholder="Ex: 69cb0541856a682189e3aded" />
         </div>
+
         <div>
-          <button class="whats" onclick="window.open('https://wa.me/55${c.telefone}')">💬</button>
-          <button class="delete" onclick="excluir(${i})">🗑️</button>
+          <label for="apiKey">X-Access-Key</label>
+          <input id="apiKey" type="text" placeholder="Cole aqui sua Access Key" />
         </div>
       </div>
-    `;
-  });
-}
 
-/* ADICIONAR */
-async function adicionar() {
-  let nome = nomeEl.value;
-  let telefone = telefoneEl.value;
-  let obs = obsEl.value;
+      <div class="actions">
+        <button class="btn-secondary" onclick="salvarConfig()">Salvar configuração</button>
+        <button class="btn-primary" onclick="carregarContatos()">Carregar contatos</button>
+      </div>
 
-  if (!nome || !telefone) return alert("Preencha nome e telefone!");
+      <div class="small">
+        Seu bin precisa estar com esta estrutura:
+        <code>{ "contatos": [] }</code><br>
+        A leitura pode ser feita com <code>X-Access-Key</code> ou <code>X-Master-Key</code>, e para atualizar o bin a chave precisa ter permissão de update. :contentReference[oaicite:0]{index=0}
+      </div>
+    </div>
 
-  contatos.push({ nome, telefone, obs, usuario });
+    <div class="card">
+      <h2>Novo contato</h2>
 
-  await salvar();
-  carregar();
-  fecharModal();
+      <div class="grid">
+        <div>
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" placeholder="Digite o nome" />
+        </div>
 
-  nomeEl.value = "";
-  telefoneEl.value = "";
-  obsEl.value = "";
-}
+        <div>
+          <label for="telefone">Telefone</label>
+          <input id="telefone" type="text" placeholder="Digite o telefone" />
+        </div>
+      </div>
 
-/* EXCLUIR */
-async function excluir(i) {
-  if (!confirm("Excluir contato?")) return;
-  contatos.splice(i, 1);
-  await salvar();
-  carregar();
-}
+      <div class="actions">
+        <button class="btn-success" onclick="adicionarContato()">Adicionar contato</button>
+      </div>
+    </div>
 
-/* BUSCA */
-function filtrar() {
-  let b = busca.value.toLowerCase();
+    <div class="top-bar">
+      <input id="busca" type="text" placeholder="Buscar por nome ou telefone..." oninput="renderizarTabela()" />
+    </div>
 
-  let f = contatos.filter(c =>
-    c.nome.toLowerCase().includes(b) ||
-    (c.obs && c.obs.toLowerCase().includes(b)) ||
-    c.telefone.includes(b)
-  );
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th style="width: 130px;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="listaContatos">
+        <tr>
+          <td colspan="3" class="empty">Nenhum contato carregado.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-  render(f);
-}
+  <script>
+    let contatos = [];
 
-/* MODAL */
-function abrirModal() { modal.style.display = "block"; }
-function fecharModal() { modal.style.display = "none"; }
+    function mostrarStatus(mensagem, tipo = "ok") {
+      const status = document.getElementById("status");
+      status.className = `status show ${tipo}`;
+      status.textContent = mensagem;
+    }
 
-const nomeEl = document.getElementById("nome");
-const telefoneEl = document.getElementById("telefone");
-const obsEl = document.getElementById("obs");
-const busca = document.getElementById("busca");
-const modal = document.getElementById("modal");
+    function limparStatus() {
+      const status = document.getElementById("status");
+      status.className = "status";
+      status.textContent = "";
+    }
 
-carregar();
-</script>
+    function salvarConfig() {
+      localStorage.setItem("agenda_bin_id", document.getElementById("binId").value.trim());
+      localStorage.setItem("agenda_access_key", document.getElementById("apiKey").value.trim());
+      mostrarStatus("Configuração salva com sucesso.");
+    }
 
+    function carregarConfigSalva() {
+      document.getElementById("binId").value = localStorage.getItem("agenda_bin_id") || "";
+      document.getElementById("apiKey").value = localStorage.getItem("agenda_access_key") || "";
+    }
+
+    function obterConfig() {
+      const binId = document.getElementById("binId").value.trim();
+      const apiKey = document.getElementById("apiKey").value.trim();
+
+      if (!binId) {
+        throw new Error("Informe o BIN ID.");
+      }
+
+      if (!apiKey) {
+        throw new Error("Informe a X-Access-Key.");
+      }
+
+      return { binId, apiKey };
+    }
+
+    async function carregarContatos() {
+      limparStatus();
+
+      try {
+        const { binId, apiKey } = obterConfig();
+
+        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${binId}?meta=false`, {
+          method: "GET",
+          headers: {
+            "X-Access-Key": apiKey
+          }
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          throw new Error(dados.message || "Erro ao carregar contatos.");
+        }
+
+        if (!dados || typeof dados !== "object") {
+          throw new Error("O bin não contém um JSON válido.");
+        }
+
+        if (!Array.isArray(dados.contatos)) {
+          throw new Error('O bin precisa ter este formato: { "contatos": [] }');
+        }
+
+        contatos = dados.contatos;
+        renderizarTabela();
+        mostrarStatus("Contatos carregados com sucesso.");
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+      }
+    }
+
+    async function salvarContatosNoBin() {
+      const { binId, apiKey } = obterConfig();
+
+      const resposta = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Access-Key": apiKey
+        },
+        body: JSON.stringify({ contatos })
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(dados.message || "Erro ao salvar contatos.");
+      }
+
+      return dados;
+    }
+
+    async function adicionarContato() {
+      limparStatus();
+
+      try {
+        const nome = document.getElementById("nome").value.trim();
+        const telefone = document.getElementById("telefone").value.trim();
+
+        if (!nome) {
+          throw new Error("Informe o nome do contato.");
+        }
+
+        if (!telefone) {
+          throw new Error("Informe o telefone do contato.");
+        }
+
+        contatos.push({ nome, telefone });
+        await salvarContatosNoBin();
+
+        document.getElementById("nome").value = "";
+        document.getElementById("telefone").value = "";
+
+        renderizarTabela();
+        mostrarStatus("Contato adicionado com sucesso.");
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+      }
+    }
+
+    async function excluirContato(indice) {
+      limparStatus();
+
+      try {
+        contatos.splice(indice, 1);
+        await salvarContatosNoBin();
+        renderizarTabela();
+        mostrarStatus("Contato excluído com sucesso.");
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+      }
+    }
+
+    function renderizarTabela() {
+      const termo = document.getElementById("busca").value.trim().toLowerCase();
+      const tbody = document.getElementById("listaContatos");
+
+      const listaFiltrada = contatos.filter(contato => {
+        const nome = (contato.nome || "").toLowerCase();
+        const telefone = (contato.telefone || "").toLowerCase();
+        return nome.includes(termo) || telefone.includes(termo);
+      });
+
+      if (listaFiltrada.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="empty">Nenhum contato encontrado.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = "";
+
+      listaFiltrada.forEach((contato) => {
+        const indiceReal = contatos.findIndex(
+          c => c.nome === contato.nome && c.telefone === contato.telefone
+        );
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(contato.nome)}</td>
+          <td>${escapeHtml(contato.telefone)}</td>
+          <td>
+            <button class="btn-danger" onclick="excluirContato(${indiceReal})">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(texto) {
+      const div = document.createElement("div");
+      div.textContent = texto;
+      return div.innerHTML;
+    }
+
+    carregarConfigSalva();
+  </script>
 </body>
 </html>
