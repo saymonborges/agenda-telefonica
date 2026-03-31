@@ -1,463 +1,198 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Agenda Telefônica</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <style>
     body {
-      margin: 0;
+      font-family: Arial;
       background: #eef2f7;
-      color: #222;
+      margin: 0;
     }
 
     .container {
-      max-width: 950px;
+      max-width: 900px;
       margin: 30px auto;
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      padding: 24px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
 
     h1 {
-      margin: 0 0 20px;
       text-align: center;
       color: #0f4c81;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #0f4c81;
-      font-size: 18px;
-    }
-
-    .card {
-      background: #f8fbff;
-      border: 1px solid #d9e7f5;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
     }
 
     input {
       width: 100%;
-      padding: 11px 12px;
-      border: 1px solid #c8d3df;
-      border-radius: 8px;
-      outline: none;
-      font-size: 14px;
-    }
-
-    input:focus {
-      border-color: #0f4c81;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
     button {
+      padding: 10px;
       border: none;
-      border-radius: 8px;
-      padding: 11px 16px;
+      border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      transition: 0.2s;
+      margin-top: 10px;
     }
 
-    .btn-primary {
-      background: #0f4c81;
+    .btn {
+      background: green;
       color: white;
     }
 
-    .btn-primary:hover {
-      background: #0b3b64;
-    }
-
-    .btn-success {
-      background: #198754;
+    .btn-del {
+      background: red;
       color: white;
-    }
-
-    .btn-success:hover {
-      background: #12663f;
-    }
-
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: #b52b38;
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background: #565e64;
-    }
-
-    .status {
-      display: none;
-      margin-bottom: 18px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.ok {
-      background: #e8f7ed;
-      color: #166534;
-      border: 1px solid #b9e4c7;
-    }
-
-    .status.error {
-      background: #fdecec;
-      color: #991b1b;
-      border: 1px solid #f5bcbc;
-    }
-
-    .top-bar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .top-bar input {
-      max-width: 320px;
     }
 
     table {
       width: 100%;
+      margin-top: 20px;
       border-collapse: collapse;
-      background: white;
-      overflow: hidden;
-      border-radius: 10px;
-    }
-
-    thead {
-      background: #f3f7fb;
     }
 
     th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #e8edf3;
-      text-align: left;
-      vertical-align: middle;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
     }
 
-    th {
-      color: #334155;
-    }
-
-    .empty {
-      text-align: center;
-      color: #64748b;
-      padding: 24px 8px;
-    }
-
-    .small {
-      font-size: 13px;
-      color: #555;
-      margin-top: 10px;
-      line-height: 1.5;
-    }
-
-    code {
-      background: #edf2f7;
-      padding: 2px 6px;
+    .status {
+      margin: 10px 0;
+      padding: 10px;
       border-radius: 6px;
+      display: none;
+    }
+
+    .ok {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .erro {
+      background: #f8d7da;
+      color: #721c24;
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>📞 Agenda Telefônica</h1>
 
-    <div id="status" class="status"></div>
+<div class="container">
+  <h1>📞 Agenda Telefônica</h1>
 
-    <div class="card">
-      <h2>Configuração JsonBin</h2>
+  <div id="status" class="status"></div>
 
-      <div class="grid">
-        <div>
-          <label for="binId">BIN ID</label>
-          <input id="binId" type="text" placeholder="Ex: 69cb0541856a682189e3aded" />
-        </div>
+  <h3>Novo contato</h3>
 
-        <div>
-          <label for="apiKey">X-Access-Key</label>
-          <input id="apiKey" type="text" placeholder="Cole aqui sua Access Key" />
-        </div>
-      </div>
+  <input id="nome" placeholder="Nome">
+  <input id="telefone" placeholder="Telefone">
 
-      <div class="actions">
-        <button class="btn-secondary" onclick="salvarConfig()">Salvar configuração</button>
-        <button class="btn-primary" onclick="carregarContatos()">Carregar contatos</button>
-      </div>
+  <button class="btn" onclick="add()">Adicionar contato</button>
 
-      <div class="small">
-        Seu bin precisa estar com esta estrutura:
-        <code>{ "contatos": [] }</code><br>
-        A leitura pode ser feita com <code>X-Access-Key</code> ou <code>X-Master-Key</code>, e para atualizar o bin a chave precisa ter permissão de update. :contentReference[oaicite:0]{index=0}
-      </div>
-    </div>
+  <input id="busca" placeholder="Buscar..." oninput="render()">
 
-    <div class="card">
-      <h2>Novo contato</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+</div>
 
-      <div class="grid">
-        <div>
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" placeholder="Digite o nome" />
-        </div>
+<script>
+const BIN_ID = "69cb0541856a682189e3aded";
+const KEY = "$2a$10$JGOwvpp/ZdRDguC9i6pm.VtOGv7eil4J4dkWGt5y7DB";
 
-        <div>
-          <label for="telefone">Telefone</label>
-          <input id="telefone" type="text" placeholder="Digite o telefone" />
-        </div>
-      </div>
+let contatos = [];
 
-      <div class="actions">
-        <button class="btn-success" onclick="adicionarContato()">Adicionar contato</button>
-      </div>
-    </div>
+function status(msg, tipo="ok"){
+  let el = document.getElementById("status");
+  el.innerText = msg;
+  el.className = "status " + tipo;
+  el.style.display = "block";
+}
 
-    <div class="top-bar">
-      <input id="busca" type="text" placeholder="Buscar por nome ou telefone..." oninput="renderizarTabela()" />
-    </div>
+async function carregar(){
+  try{
+    let r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}?meta=false`,{
+      headers: { "X-Access-Key": KEY }
+    });
 
-    <table>
-      <thead>
+    let d = await r.json();
+    contatos = d.contatos || [];
+    render();
+  }catch(e){
+    status("Erro ao carregar", "erro");
+  }
+}
+
+async function salvar(){
+  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "X-Access-Key": KEY
+    },
+    body: JSON.stringify({contatos})
+  });
+}
+
+async function add(){
+  let nome = document.getElementById("nome").value.trim();
+  let tel = document.getElementById("telefone").value.trim();
+
+  if(!nome || !tel){
+    status("Preencha os campos", "erro");
+    return;
+  }
+
+  contatos.push({nome, telefone: tel});
+  await salvar();
+
+  document.getElementById("nome").value = "";
+  document.getElementById("telefone").value = "";
+
+  render();
+  status("Contato adicionado!");
+}
+
+async function del(i){
+  contatos.splice(i,1);
+  await salvar();
+  render();
+}
+
+function render(){
+  let busca = document.getElementById("busca").value.toLowerCase();
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  contatos
+    .filter(c => c.nome.toLowerCase().includes(busca) || c.telefone.includes(busca))
+    .forEach((c,i)=>{
+      lista.innerHTML += `
         <tr>
-          <th>Nome</th>
-          <th>Telefone</th>
-          <th style="width: 130px;">Ações</th>
+          <td>${c.nome}</td>
+          <td>${c.telefone}</td>
+          <td><button class="btn-del" onclick="del(${i})">Excluir</button></td>
         </tr>
-      </thead>
-      <tbody id="listaContatos">
-        <tr>
-          <td colspan="3" class="empty">Nenhum contato carregado.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      `;
+    });
+}
 
-  <script>
-    let contatos = [];
+carregar();
+</script>
 
-    function mostrarStatus(mensagem, tipo = "ok") {
-      const status = document.getElementById("status");
-      status.className = `status show ${tipo}`;
-      status.textContent = mensagem;
-    }
-
-    function limparStatus() {
-      const status = document.getElementById("status");
-      status.className = "status";
-      status.textContent = "";
-    }
-
-    function salvarConfig() {
-      localStorage.setItem("agenda_bin_id", document.getElementById("binId").value.trim());
-      localStorage.setItem("agenda_access_key", document.getElementById("apiKey").value.trim());
-      mostrarStatus("Configuração salva com sucesso.");
-    }
-
-    function carregarConfigSalva() {
-      document.getElementById("binId").value = localStorage.getItem("agenda_bin_id") || "";
-      document.getElementById("apiKey").value = localStorage.getItem("agenda_access_key") || "";
-    }
-
-    function obterConfig() {
-      const binId = document.getElementById("binId").value.trim();
-      const apiKey = document.getElementById("apiKey").value.trim();
-
-      if (!binId) {
-        throw new Error("Informe o BIN ID.");
-      }
-
-      if (!apiKey) {
-        throw new Error("Informe a X-Access-Key.");
-      }
-
-      return { binId, apiKey };
-    }
-
-    async function carregarContatos() {
-      limparStatus();
-
-      try {
-        const { binId, apiKey } = obterConfig();
-
-        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${binId}?meta=false`, {
-          method: "GET",
-          headers: {
-            "X-Access-Key": apiKey
-          }
-        });
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-          throw new Error(dados.message || "Erro ao carregar contatos.");
-        }
-
-        if (!dados || typeof dados !== "object") {
-          throw new Error("O bin não contém um JSON válido.");
-        }
-
-        if (!Array.isArray(dados.contatos)) {
-          throw new Error('O bin precisa ter este formato: { "contatos": [] }');
-        }
-
-        contatos = dados.contatos;
-        renderizarTabela();
-        mostrarStatus("Contatos carregados com sucesso.");
-      } catch (erro) {
-        mostrarStatus(erro.message, "error");
-      }
-    }
-
-    async function salvarContatosNoBin() {
-      const { binId, apiKey } = obterConfig();
-
-      const resposta = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Access-Key": apiKey
-        },
-        body: JSON.stringify({ contatos })
-      });
-
-      const dados = await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(dados.message || "Erro ao salvar contatos.");
-      }
-
-      return dados;
-    }
-
-    async function adicionarContato() {
-      limparStatus();
-
-      try {
-        const nome = document.getElementById("nome").value.trim();
-        const telefone = document.getElementById("telefone").value.trim();
-
-        if (!nome) {
-          throw new Error("Informe o nome do contato.");
-        }
-
-        if (!telefone) {
-          throw new Error("Informe o telefone do contato.");
-        }
-
-        contatos.push({ nome, telefone });
-        await salvarContatosNoBin();
-
-        document.getElementById("nome").value = "";
-        document.getElementById("telefone").value = "";
-
-        renderizarTabela();
-        mostrarStatus("Contato adicionado com sucesso.");
-      } catch (erro) {
-        mostrarStatus(erro.message, "error");
-      }
-    }
-
-    async function excluirContato(indice) {
-      limparStatus();
-
-      try {
-        contatos.splice(indice, 1);
-        await salvarContatosNoBin();
-        renderizarTabela();
-        mostrarStatus("Contato excluído com sucesso.");
-      } catch (erro) {
-        mostrarStatus(erro.message, "error");
-      }
-    }
-
-    function renderizarTabela() {
-      const termo = document.getElementById("busca").value.trim().toLowerCase();
-      const tbody = document.getElementById("listaContatos");
-
-      const listaFiltrada = contatos.filter(contato => {
-        const nome = (contato.nome || "").toLowerCase();
-        const telefone = (contato.telefone || "").toLowerCase();
-        return nome.includes(termo) || telefone.includes(termo);
-      });
-
-      if (listaFiltrada.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="3" class="empty">Nenhum contato encontrado.</td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = "";
-
-      listaFiltrada.forEach((contato) => {
-        const indiceReal = contatos.findIndex(
-          c => c.nome === contato.nome && c.telefone === contato.telefone
-        );
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${escapeHtml(contato.nome)}</td>
-          <td>${escapeHtml(contato.telefone)}</td>
-          <td>
-            <button class="btn-danger" onclick="excluirContato(${indiceReal})">Excluir</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function escapeHtml(texto) {
-      const div = document.createElement("div");
-      div.textContent = texto;
-      return div.innerHTML;
-    }
-
-    carregarConfigSalva();
-  </script>
 </body>
 </html>
