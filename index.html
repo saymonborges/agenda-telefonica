@@ -1,169 +1,529 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Agenda Telefônica</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda Telefônica</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-<style>
-body{font-family:Arial;background:#eef2f7;margin:0;padding:20px}
-.container{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
-h1{text-align:center;color:#0f4c81}
-input,textarea{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc}
-textarea{min-height:80px}
-button{padding:10px;border:none;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:bold}
-.add{background:green;color:#fff}
-.edit{background:#0d6efd;color:#fff}
-.del{background:red;color:#fff}
-.cancel{background:#6c757d;color:#fff}
-table{width:100%;margin-top:20px;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #ddd}
-.status{margin:10px 0;padding:10px;border-radius:6px}
-.ok{background:#d4edda;color:#155724}
-.erro{background:#f8d7da;color:#721c24}
-</style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #eef2f7;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #0f4c81;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      color: #0f4c81;
+      font-size: 20px;
+    }
+
+    .card {
+      background: #f8fbff;
+      border: 1px solid #d9e7f5;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #c8d3df;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #0f4c81;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .btn-add {
+      background: #198754;
+      color: white;
+    }
+
+    .btn-add:hover {
+      background: #12663f;
+    }
+
+    .btn-edit {
+      background: #0d6efd;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #0a58ca;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b52b38;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #565e64;
+    }
+
+    .status {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.ok {
+      background: #e8f7ed;
+      color: #166534;
+      border: 1px solid #b9e4c7;
+    }
+
+    .status.error {
+      background: #fdecec;
+      color: #991b1b;
+      border: 1px solid #f5bcbc;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .toolbar input {
+      max-width: 360px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    thead {
+      background: #f3f7fb;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e8edf3;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #334155;
+    }
+
+    .obs {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty {
+      text-align: center;
+      color: #64748b;
+      padding: 24px 8px;
+    }
+
+    .acao-wrap {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 760px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        border: 1px solid #e8edf3;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        padding: 10px;
+      }
+
+      td {
+        border-bottom: none;
+        padding: 8px 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        color: #334155;
+        margin-bottom: 4px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <h1>📞 Agenda Telefônica</h1>
 
-<div class="container">
-<h1>📞 Agenda Telefônica</h1>
+    <div id="status" class="status"></div>
 
-<div id="status"></div>
+    <div class="card">
+      <h2 id="formTitle">Novo contato</h2>
 
-<h3 id="titulo">Novo contato</h3>
+      <div class="grid">
+        <div>
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" placeholder="Digite o nome" />
+        </div>
 
-<input id="nome" placeholder="Nome">
-<input id="telefone" placeholder="Telefone">
-<textarea id="obs" placeholder="Observações"></textarea>
+        <div>
+          <label for="telefone">Telefone</label>
+          <input id="telefone" type="text" placeholder="Digite o telefone" />
+        </div>
 
-<button id="btnSalvar" class="add" onclick="salvar()">Adicionar contato</button>
-<button id="btnCancelar" class="cancel" onclick="cancelar()" style="display:none;">Cancelar</button>
+        <div class="full">
+          <label for="observacoes">Observações</label>
+          <textarea id="observacoes" placeholder="Digite observações"></textarea>
+        </div>
+      </div>
 
-<input id="busca" placeholder="Buscar..." oninput="render()">
+      <div class="actions">
+        <button id="btnSalvar" class="btn-add" onclick="salvarContato()">Adicionar contato</button>
+        <button id="btnCancelar" class="btn-secondary" onclick="cancelarEdicao()" style="display:none;">Cancelar edição</button>
+      </div>
+    </div>
 
-<table>
-<thead>
-<tr>
-<th>Nome</th>
-<th>Telefone</th>
-<th>Observações</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
+    <div class="toolbar">
+      <input id="busca" type="text" placeholder="Buscar por nome, telefone ou observações..." oninput="renderizarTabela()" />
+    </div>
 
-</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>Observações</th>
+          <th style="width: 190px;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="listaContatos">
+        <tr>
+          <td colspan="4" class="empty">Carregando contatos...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<script>
-const BIN="69cb0541856a682189e3aded";
-const KEY="$2a$10$JGOrwpp/ZdlRDguC9i6pm.V/tOGv7eil4J4dKWGt5y7DBJEa3HvOi";
+  <script>
+    const BIN_ID = "69cb0541856a682189e3aded";
+    const ACCESS_KEY = "$2a$10$JGOrwpp/ZdlRDguC9i6pm.V/tOGv7eil4J4dKWGt5y7DBJEa3HvOi";
 
-let contatos=[];
-let editando=null;
+    let contatos = [];
+    let indiceEdicao = null;
 
-function msg(t,tipo="ok"){
-document.getElementById("status").innerHTML=`<div class="${tipo}">${t}</div>`;
-}
+    function mostrarStatus(mensagem, tipo = "ok") {
+      const status = document.getElementById("status");
+      status.className = `status show ${tipo}`;
+      status.textContent = mensagem;
+    }
 
-async function load(){
-let r=await fetch(`https://api.jsonbin.io/v3/b/${BIN}?meta=false`,{
-headers:{"X-Access-Key":KEY}
-});
-let d=await r.json();
-contatos=d.contatos||[];
-render();
-}
+    function limparStatus() {
+      const status = document.getElementById("status");
+      status.className = "status";
+      status.textContent = "";
+    }
 
-async function saveBin(){
-await fetch(`https://api.jsonbin.io/v3/b/${BIN}`,{
-method:"PUT",
-headers:{
-"Content-Type":"application/json",
-"X-Access-Key":KEY
-},
-body:JSON.stringify({contatos})
-});
-}
+    function limparFormulario() {
+      document.getElementById("nome").value = "";
+      document.getElementById("telefone").value = "";
+      document.getElementById("observacoes").value = "";
+    }
 
-async function salvar(){
-let nome=document.getElementById("nome").value.trim();
-let tel=document.getElementById("telefone").value.trim();
-let obs=document.getElementById("obs").value.trim();
+    function atualizarModoEdicao() {
+      const formTitle = document.getElementById("formTitle");
+      const btnSalvar = document.getElementById("btnSalvar");
+      const btnCancelar = document.getElementById("btnCancelar");
 
-if(!nome||!tel){msg("Preencha nome e telefone","erro");return;}
+      if (indiceEdicao === null) {
+        formTitle.textContent = "Novo contato";
+        btnSalvar.textContent = "Adicionar contato";
+        btnSalvar.className = "btn-add";
+        btnCancelar.style.display = "none";
+      } else {
+        formTitle.textContent = "Editar contato";
+        btnSalvar.textContent = "Salvar alterações";
+        btnSalvar.className = "btn-edit";
+        btnCancelar.style.display = "inline-block";
+      }
+    }
 
-if(editando===null){
-contatos.push({nome,telefone:tel,observacoes:obs});
-msg("Contato adicionado");
-}else{
-contatos[editando]={nome,telefone:tel,observacoes:obs};
-msg("Contato atualizado");
-}
+    function escapeHtml(texto) {
+      const div = document.createElement("div");
+      div.textContent = texto ?? "";
+      return div.innerHTML;
+    }
 
-await saveBin();
-cancelar();
-render();
-}
+    function ordenarContatos() {
+      contatos.sort((a, b) =>
+        (a.nome || "").localeCompare((b.nome || ""), "pt-BR", { sensitivity: "base" })
+      );
+    }
 
-function editar(i){
-let c=contatos[i];
-document.getElementById("nome").value=c.nome;
-document.getElementById("telefone").value=c.telefone;
-document.getElementById("obs").value=c.observacoes||"";
+    async function carregarContatos() {
+      limparStatus();
 
-editando=i;
+      try {
+        const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}?meta=false`, {
+          method: "GET",
+          headers: {
+            "X-Access-Key": ACCESS_KEY
+          }
+        });
 
-document.getElementById("titulo").innerText="Editar contato";
-document.getElementById("btnSalvar").innerText="Salvar";
-document.getElementById("btnSalvar").className="edit";
-document.getElementById("btnCancelar").style.display="inline-block";
-window.scrollTo(0,0);
-}
+        const dados = await resposta.json();
 
-function cancelar(){
-editando=null;
-document.getElementById("nome").value="";
-document.getElementById("telefone").value="";
-document.getElementById("obs").value="";
-document.getElementById("titulo").innerText="Novo contato";
-document.getElementById("btnSalvar").innerText="Adicionar contato";
-document.getElementById("btnSalvar").className="add";
-document.getElementById("btnCancelar").style.display="none";
-}
+        if (!resposta.ok) {
+          throw new Error(dados.message || "Erro ao carregar contatos.");
+        }
 
-async function excluir(i){
-if(!confirm("Excluir contato?"))return;
-contatos.splice(i,1);
-await saveBin();
-render();
-}
+        if (!dados || typeof dados !== "object") {
+          throw new Error("O bin não contém um JSON válido.");
+        }
 
-function render(){
-let b=document.getElementById("busca").value.toLowerCase();
-let lista=document.getElementById("lista");
-lista.innerHTML="";
+        contatos = Array.isArray(dados.contatos) ? dados.contatos : [];
+        contatos = contatos.map(contato => ({
+          nome: contato.nome || "",
+          telefone: contato.telefone || "",
+          observacoes: contato.observacoes || ""
+        }));
 
-contatos
-.filter(c=>c.nome.toLowerCase().includes(b)||c.telefone.includes(b)||(c.observacoes||"").toLowerCase().includes(b))
-.sort((a,b)=>a.nome.localeCompare(b.nome))
-.forEach((c,i)=>{
-lista.innerHTML+=`
-<tr>
-<td>${c.nome}</td>
-<td>${c.telefone}</td>
-<td>${c.observacoes||""}</td>
-<td>
-<button class="edit" onclick="editar(${i})">Editar</button>
-<button class="del" onclick="excluir(${i})">Excluir</button>
-</td>
-</tr>`;
-});
-}
+        ordenarContatos();
+        renderizarTabela();
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+        document.getElementById("listaContatos").innerHTML = `
+          <tr>
+            <td colspan="4" class="empty">Erro ao carregar contatos.</td>
+          </tr>
+        `;
+      }
+    }
 
-load();
-</script>
+    async function salvarNoBin() {
+      const resposta = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Access-Key": ACCESS_KEY
+        },
+        body: JSON.stringify({ contatos })
+      });
 
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(dados.message || "Erro ao salvar contatos.");
+      }
+
+      return dados;
+    }
+
+    async function salvarContato() {
+      limparStatus();
+
+      const nome = document.getElementById("nome").value.trim();
+      const telefone = document.getElementById("telefone").value.trim();
+      const observacoes = document.getElementById("observacoes").value.trim();
+
+      if (!nome) {
+        mostrarStatus("Informe o nome do contato.", "error");
+        return;
+      }
+
+      if (!telefone) {
+        mostrarStatus("Informe o telefone do contato.", "error");
+        return;
+      }
+
+      try {
+        if (indiceEdicao === null) {
+          contatos.push({ nome, telefone, observacoes });
+          mostrarStatus("Contato adicionado com sucesso.");
+        } else {
+          contatos[indiceEdicao] = { nome, telefone, observacoes };
+          mostrarStatus("Contato atualizado com sucesso.");
+        }
+
+        ordenarContatos();
+        await salvarNoBin();
+
+        indiceEdicao = null;
+        limparFormulario();
+        atualizarModoEdicao();
+        renderizarTabela();
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+      }
+    }
+
+    function editarContato(indice) {
+      const contato = contatos[indice];
+      if (!contato) return;
+
+      document.getElementById("nome").value = contato.nome || "";
+      document.getElementById("telefone").value = contato.telefone || "";
+      document.getElementById("observacoes").value = contato.observacoes || "";
+
+      indiceEdicao = indice;
+      atualizarModoEdicao();
+      limparStatus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function cancelarEdicao() {
+      indiceEdicao = null;
+      limparFormulario();
+      atualizarModoEdicao();
+      limparStatus();
+    }
+
+    async function excluirContato(indice) {
+      if (!confirm("Deseja excluir este contato?")) return;
+
+      try {
+        contatos.splice(indice, 1);
+        await salvarNoBin();
+
+        if (indiceEdicao === indice) {
+          cancelarEdicao();
+        } else if (indiceEdicao !== null && indice < indiceEdicao) {
+          indiceEdicao--;
+        }
+
+        renderizarTabela();
+        mostrarStatus("Contato excluído com sucesso.");
+      } catch (erro) {
+        mostrarStatus(erro.message, "error");
+      }
+    }
+
+    function renderizarTabela() {
+      const busca = document.getElementById("busca").value.trim().toLowerCase();
+      const tbody = document.getElementById("listaContatos");
+
+      const contatosFiltrados = contatos
+        .map((contato, indice) => ({ ...contato, indice }))
+        .filter(contato =>
+          (contato.nome || "").toLowerCase().includes(busca) ||
+          (contato.telefone || "").toLowerCase().includes(busca) ||
+          (contato.observacoes || "").toLowerCase().includes(busca)
+        );
+
+      if (contatosFiltrados.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty">Nenhum contato encontrado.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = contatosFiltrados.map(contato => `
+        <tr>
+          <td data-label="Nome">${escapeHtml(contato.nome)}</td>
+          <td data-label="Telefone">${escapeHtml(contato.telefone)}</td>
+          <td data-label="Observações" class="obs">${escapeHtml(contato.observacoes)}</td>
+          <td data-label="Ações">
+            <div class="acao-wrap">
+              <button class="btn-edit" onclick="editarContato(${contato.indice})">Editar</button>
+              <button class="btn-danger" onclick="excluirContato(${contato.indice})">Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    atualizarModoEdicao();
+    carregarContatos();
+  </script>
 </body>
 </html>
