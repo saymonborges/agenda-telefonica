@@ -167,15 +167,6 @@
       background: #d6660e;
     }
 
-    .btn-export {
-      background: #4b5563;
-      color: white;
-    }
-
-    .btn-export:hover {
-      background: #374151;
-    }
-
     .status {
       display: none;
       margin-bottom: 18px;
@@ -212,12 +203,6 @@
     .toolbar .left {
       flex: 1;
       min-width: 260px;
-    }
-
-    .toolbar .right {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
     .counter {
@@ -362,11 +347,6 @@
           </div>
           <input id="busca" type="text" placeholder="Ex: João, cliente, eletricista, 5199..." oninput="renderizarTabela()" />
           <div id="contador" class="counter">Total de contatos: 0</div>
-        </div>
-
-        <div class="right">
-          <button class="btn-export" onclick="exportarJSON()">Exportar JSON</button>
-          <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
         </div>
       </div>
     </div>
@@ -662,35 +642,6 @@
           </td>
         </tr>
       `).join("");
-    }
-
-    function exportarJSON() {
-      const conteudo = JSON.stringify({ contatos }, null, 2);
-      const blob = new Blob([conteudo], { type: "application/json;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "agenda-contatos.json";
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportarCSV() {
-      const cabecalho = ["Nome", "Telefone", "Observacoes"];
-      const linhas = contatos.map(c => [
-        `"${(c.nome || "").replace(/"/g, '""')}"`,
-        `"${(c.telefone || "").replace(/"/g, '""')}"`,
-        `"${(c.observacoes || "").replace(/"/g, '""')}"`
-      ]);
-
-      const csv = [cabecalho.join(";"), ...linhas.map(l => l.join(";"))].join("\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "agenda-contatos.csv";
-      link.click();
-      URL.revokeObjectURL(url);
     }
 
     document.getElementById("telefone").addEventListener("input", function (e) {
