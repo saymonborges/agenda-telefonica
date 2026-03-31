@@ -1,197 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Agenda Telefônica</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Agenda Telefônica</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #eef2f7;
-      margin: 0;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      text-align: center;
-      color: #0f4c81;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .btn {
-      background: green;
-      color: white;
-    }
-
-    .btn-del {
-      background: red;
-      color: white;
-    }
-
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .status {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 6px;
-      display: none;
-    }
-
-    .ok {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .erro {
-      background: #f8d7da;
-      color: #721c24;
-    }
-  </style>
+<style>
+body{font-family:Arial;background:#eef2f7;margin:0;padding:20px;}
+.container{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+h1{text-align:center;color:#0f4c81;}
+input,textarea{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc;}
+textarea{min-height:80px;}
+button{padding:10px;border:none;border-radius:6px;cursor:pointer;margin-top:10px;}
+.add{background:green;color:white;}
+.edit{background:#0d6efd;color:white;}
+.del{background:red;color:white;}
+.cancel{background:#6c757d;color:white;}
+table{width:100%;margin-top:20px;border-collapse:collapse;}
+th,td{padding:10px;border-bottom:1px solid #ddd;}
+.status{margin:10px 0;padding:10px;border-radius:6px;}
+.ok{background:#d4edda;color:#155724;}
+.erro{background:#f8d7da;color:#721c24;}
+</style>
 </head>
 
 <body>
 
 <div class="container">
-  <h1>📞 Agenda Telefônica</h1>
+<h1>📞 Agenda Telefônica</h1>
 
-  <div id="status" class="status"></div>
+<div id="status"></div>
 
-  <h3>Novo contato</h3>
+<h3 id="titulo">Novo contato</h3>
 
-  <input id="nome" placeholder="Nome">
-  <input id="telefone" placeholder="Telefone">
+<input id="nome" placeholder="Nome">
+<input id="telefone" placeholder="Telefone">
+<textarea id="obs" placeholder="Observações"></textarea>
 
-  <button class="btn" onclick="add()">Adicionar contato</button>
+<button id="btnSalvar" class="add" onclick="salvar()">Adicionar contato</button>
+<button id="btnCancelar" class="cancel" onclick="cancelar()" style="display:none;">Cancelar</button>
 
-  <input id="busca" placeholder="Buscar..." oninput="render()">
+<input id="busca" placeholder="Buscar..." oninput="render()">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Telefone</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="lista"></tbody>
-  </table>
+<table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Telefone</th>
+<th>Observações</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
+
 </div>
 
 <script>
-const BIN_ID = "69cb0541856a682189e3aded";
-const KEY = "$2a$10$JGOwvpp/ZdRDguC9i6pm.VtOGv7eil4J4dkWGt5y7DB";
+const BIN="69cb0541856a682189e3aded";
+const KEY="$2a$10$JGOwvpp/ZdRDguC9i6pm.VtOGv7eil4J4dkWGt5y7DE";
 
-let contatos = [];
+let contatos=[];
+let editando=null;
 
-function status(msg, tipo="ok"){
-  let el = document.getElementById("status");
-  el.innerText = msg;
-  el.className = "status " + tipo;
-  el.style.display = "block";
+function msg(t, tipo="ok"){
+document.getElementById("status").innerHTML=`<div class="${tipo}">${t}</div>`;
 }
 
-async function carregar(){
-  try{
-    let r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}?meta=false`,{
-      headers: { "X-Access-Key": KEY }
-    });
+async function load(){
+let r=await fetch(`https://api.jsonbin.io/v3/b/${BIN}?meta=false`,{
+headers:{"X-Access-Key":KEY}
+});
+let d=await r.json();
+contatos=d.contatos||[];
+render();
+}
 
-    let d = await r.json();
-    contatos = d.contatos || [];
-    render();
-  }catch(e){
-    status("Erro ao carregar", "erro");
-  }
+async function saveBin(){
+await fetch(`https://api.jsonbin.io/v3/b/${BIN}`,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+"X-Access-Key":KEY
+},
+body:JSON.stringify({contatos})
+});
 }
 
 async function salvar(){
-  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
-    method:"PUT",
-    headers:{
-      "Content-Type":"application/json",
-      "X-Access-Key": KEY
-    },
-    body: JSON.stringify({contatos})
-  });
+let nome=document.getElementById("nome").value.trim();
+let tel=document.getElementById("telefone").value.trim();
+let obs=document.getElementById("obs").value.trim();
+
+if(!nome||!tel){msg("Preencha nome e telefone","erro");return;}
+
+if(editando===null){
+contatos.push({nome,telefone:tel,observacoes:obs});
+msg("Contato adicionado");
+}else{
+contatos[editando]={nome,telefone:tel,observacoes:obs};
+msg("Contato atualizado");
 }
 
-async function add(){
-  let nome = document.getElementById("nome").value.trim();
-  let tel = document.getElementById("telefone").value.trim();
-
-  if(!nome || !tel){
-    status("Preencha os campos", "erro");
-    return;
-  }
-
-  contatos.push({nome, telefone: tel});
-  await salvar();
-
-  document.getElementById("nome").value = "";
-  document.getElementById("telefone").value = "";
-
-  render();
-  status("Contato adicionado!");
+await saveBin();
+cancelar();
+render();
 }
 
-async function del(i){
-  contatos.splice(i,1);
-  await salvar();
-  render();
+function editar(i){
+let c=contatos[i];
+document.getElementById("nome").value=c.nome;
+document.getElementById("telefone").value=c.telefone;
+document.getElementById("obs").value=c.observacoes||"";
+
+editando=i;
+
+document.getElementById("titulo").innerText="Editar contato";
+document.getElementById("btnSalvar").innerText="Salvar";
+document.getElementById("btnSalvar").className="edit";
+document.getElementById("btnCancelar").style.display="inline-block";
+window.scrollTo(0,0);
+}
+
+function cancelar(){
+editando=null;
+document.getElementById("nome").value="";
+document.getElementById("telefone").value="";
+document.getElementById("obs").value="";
+document.getElementById("titulo").innerText="Novo contato";
+document.getElementById("btnSalvar").innerText="Adicionar contato";
+document.getElementById("btnSalvar").className="add";
+document.getElementById("btnCancelar").style.display="none";
+}
+
+async function excluir(i){
+if(!confirm("Excluir contato?"))return;
+contatos.splice(i,1);
+await saveBin();
+render();
 }
 
 function render(){
-  let busca = document.getElementById("busca").value.toLowerCase();
-  let lista = document.getElementById("lista");
-  lista.innerHTML = "";
+let b=document.getElementById("busca").value.toLowerCase();
+let lista=document.getElementById("lista");
+lista.innerHTML="";
 
-  contatos
-    .filter(c => c.nome.toLowerCase().includes(busca) || c.telefone.includes(busca))
-    .forEach((c,i)=>{
-      lista.innerHTML += `
-        <tr>
-          <td>${c.nome}</td>
-          <td>${c.telefone}</td>
-          <td><button class="btn-del" onclick="del(${i})">Excluir</button></td>
-        </tr>
-      `;
-    });
+contatos
+.filter(c=>c.nome.toLowerCase().includes(b)||c.telefone.includes(b)||(c.observacoes||"").toLowerCase().includes(b))
+.sort((a,b)=>a.nome.localeCompare(b.nome))
+.forEach((c,i)=>{
+lista.innerHTML+=`
+<tr>
+<td>${c.nome}</td>
+<td>${c.telefone}</td>
+<td>${c.observacoes||""}</td>
+<td>
+<button class="edit" onclick="editar(${i})">Editar</button>
+<button class="del" onclick="excluir(${i})">Excluir</button>
+</td>
+</tr>`;
+});
 }
 
-carregar();
+load();
 </script>
 
 </body>
