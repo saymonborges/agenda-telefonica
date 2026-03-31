@@ -6,21 +6,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:Arial;background:#eef2f7;margin:0;padding:20px;}
-.container{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.1);}
-h1{text-align:center;color:#0f4c81;}
-input,textarea{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc;}
-textarea{min-height:80px;}
-button{padding:10px;border:none;border-radius:6px;cursor:pointer;margin-top:10px;}
-.add{background:green;color:white;}
-.edit{background:#0d6efd;color:white;}
-.del{background:red;color:white;}
-.cancel{background:#6c757d;color:white;}
-table{width:100%;margin-top:20px;border-collapse:collapse;}
-th,td{padding:10px;border-bottom:1px solid #ddd;}
-.status{margin:10px 0;padding:10px;border-radius:6px;}
-.ok{background:#d4edda;color:#155724;}
-.erro{background:#f8d7da;color:#721c24;}
+body{font-family:Arial;background:#eef2f7;margin:0;padding:20px}
+.container{max-width:1000px;margin:auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
+h1{text-align:center;color:#0f4c81}
+input,textarea{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1px solid #ccc}
+textarea{min-height:80px}
+button{padding:10px;border:none;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:bold}
+.add{background:green;color:#fff}
+.edit{background:#0d6efd;color:#fff}
+.del{background:red;color:#fff}
+.cancel{background:#6c757d;color:#fff}
+table{width:100%;margin-top:20px;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #ddd}
+.status{margin:10px 0;padding:10px;border-radius:6px}
+.ok{background:#d4edda;color:#155724}
+.erro{background:#f8d7da;color:#721c24}
 </style>
 </head>
 
@@ -58,12 +58,12 @@ th,td{padding:10px;border-bottom:1px solid #ddd;}
 
 <script>
 const BIN="69cb0541856a682189e3aded";
-const KEY="$2a$10$JGOwvpp/ZdRDguC9i6pm.VtOGv7eil4J4dkWGt5y7DE";
+const KEY="$2a$10$JGOrwpp/ZdlRDguC9i6pm.V/tOGv7eil4J4dKWGt5y7DBJEa3HvOi";
 
 let contatos=[];
 let editando=null;
 
-function msg(t, tipo="ok"){
+function msg(t,tipo="ok"){
 document.getElementById("status").innerHTML=`<div class="${tipo}">${t}</div>`;
 }
 
